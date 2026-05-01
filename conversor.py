@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
 import io
-st.title('conversor de imagens')
+st.title('Editor e Conversor de Imagem')
 
 
 file = st.file_uploader("Converta sua imagem",
