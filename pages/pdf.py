@@ -1,12 +1,14 @@
 import streamlit as st 
 from PyPDF2 import PdfMerger, PdfReader, PdfWriter
+from pdf2docx import Converter
+from docx2pdf import convert
 import io
 import os
 st.title("Editor de PDF")
 
 tab1, tab2, tab3 = st.tabs([
     "Juntar PDF",
-    "Divir PDF",
+    "Dividir PDF",
     "Converter"
 ])
 
@@ -82,3 +84,40 @@ with tab2:
                 f"Página {i+1}",
                 data=output.getvalue(),
                 file_name=f"pagina{i+1}.pdf" )
+
+with tab3:
+    st.subheader("Converter PDF")
+
+    opcao = st.selectbox(
+        "Escolha a conversão: ",
+        ["PDF → Word", "Word → PDF"]
+    )
+    arquivo = st.file_uploader("Envie o arquivo")
+
+    if arquivo:
+        if opcao == "PDF → Word":
+            with open("temp.pdf", "wb") as f:
+                f.write(arquivo.read())
+            
+            cv = Converter("temp.pdf")
+            cv.convert("convertido.docx")
+            cv.close()
+
+            with open("convertido.docx", "rb") as f:
+                st.download_button(
+                    "Baixar Word",
+                    f,
+                    file_name="convertido.docx"
+                )
+        elif opcao == "Word → PDF":
+            with open("temp.docx", "wb") as f:
+                f.write(arquivo.read())
+
+            convert("temp.docx", "convertido.pdf")
+
+            with open("convertido.pdf", "rb") as f:
+                st.download_button(
+                    "Baixar PDF",
+                    f,
+                    file_name="convertido.pdf"
+                )
