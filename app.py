@@ -1,5 +1,6 @@
 import streamlit as st
 
+st.set_page_config(page_title="Arquivos", page_icon="📁")
 st.title("Bem-Vindo ao seu Editor e Conversor de arquivos")
 
 
