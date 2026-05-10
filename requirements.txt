@@ -1,0 +1,10 @@
+streamlit
+PyPDF2
+pdf2docx
+docx2pdf
+python-docx
+Pillow
+moviepy
+imageio
+imageio-ffmpeg
+imageio[ffmpeg]
