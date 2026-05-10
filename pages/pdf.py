@@ -1,4 +1,5 @@
 import streamlit as st 
+import tempfile
 from PyPDF2 import PdfMerger, PdfReader, PdfWriter
 from pdf2docx import Converter
 from docx2pdf import convert
@@ -85,39 +86,76 @@ with tab2:
                 data=output.getvalue(),
                 file_name=f"pagina{i+1}.pdf" )
 
+
+
 with tab3:
     st.subheader("Converter PDF")
 
     opcao = st.selectbox(
-        "Escolha a conversão: ",
+        "Escolha a conversão:",
         ["PDF → Word", "Word → PDF"]
     )
+
     arquivo = st.file_uploader("Envie o arquivo")
 
     if arquivo:
-        if opcao == "PDF → Word":
-            with open("temp.pdf", "wb") as f:
-                f.write(arquivo.read())
-            
-            cv = Converter("temp.pdf")
-            cv.convert("convertido.docx")
-            cv.close()
 
-            with open("convertido.docx", "rb") as f:
-                st.download_button(
-                    "Baixar Word",
-                    f,
-                    file_name="convertido.docx"
-                )
-        elif opcao == "Word → PDF":
-            with open("temp.docx", "wb") as f:
-                f.write(arquivo.read())
+        
+        extensao = arquivo.name.split('.')[-1]
 
-            convert("temp.docx", "convertido.pdf")
+        
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=f".{extensao}"
+        ) as temp_input:
 
-            with open("convertido.pdf", "rb") as f:
-                st.download_button(
-                    "Baixar PDF",
-                    f,
-                    file_name="convertido.pdf"
-                )
+            temp_input.write(arquivo.read())
+            input_path = temp_input.name
+
+        try:
+
+           
+            if opcao == "PDF → Word":
+
+                output_path = input_path.replace(".pdf", ".docx")
+
+                cv = Converter(input_path)
+                cv.convert(output_path)
+                cv.close()
+
+                with open(output_path, "rb") as f:
+                    st.download_button(
+                        "Baixar Word",
+                        data=f,
+                        file_name="convertido.docx"
+                    )
+
+           
+            elif opcao == "Word → PDF":
+
+                output_path = input_path.replace(".docx", ".pdf")
+
+                convert(input_path, output_path)
+
+                with open(output_path, "rb") as f:
+                    st.download_button(
+                        "Baixar PDF",
+                        data=f,
+                        file_name="convertido.pdf"
+                    )
+
+        except Exception as e:
+            st.error(f"Erro: {e}")
+
+       
+        finally:
+
+            try:
+                os.remove(input_path)
+            except:
+                pass
+
+            try:
+                os.remove(output_path)
+            except:
+                pass
